@@ -1,4 +1,6 @@
-{{- $env := promptStringOnce . "env" "Environment type (arch-hypr, ubuntu-kde, ubuntu-gnome)" -}}
+{{- $env := promptStringOnce . "env" "Environment type (arch-hypr, ubuntu-kde, ubuntu-gnome, terminal)" -}}
+{{- $hasGui := promptBoolOnce . "has_gui" "Does this machine have a GUI?" -}}
 
 data:
   env: {{ $env | quote }}
+  has_gui: {{ $hasGui }}
