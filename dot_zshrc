@@ -13,6 +13,8 @@ antidote load
 export EDITOR=/bin/nano
 export LANG=en_GB.UTF-8
 
+# Custom directories added to path
+[[ -f ~/.config/zsh/paths.zsh ]] && source ~/.config/zsh/paths.zsh
 
 # Custom shell functions located under ~/.config/zsh/functions.zsh
 [[ -f ~/.config/zsh/functions.zsh ]] && source ~/.config/zsh/functions.zsh

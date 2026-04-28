@@ -21,3 +21,6 @@ alias ce-functions="ce ~/.config/zsh/functions.zsh"
 ## Waybar config-files
 alias ce-waybar-conf="ce ~/.config/waybar/config.jsonc"
 alias ce-waybar-style="ce ~/.config/waybar/style.css"
+
+## Because we like human form
+alias df="df -h"
