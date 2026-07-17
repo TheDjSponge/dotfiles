@@ -32,6 +32,14 @@ if [ ! -d ~/.config/nvim ]; then
   echo "      nuking anything, then point this URL at the fork instead."
 fi
 
+echo "==> Graphite GTK theme (Dark/compact/nord variant only -- matches gtk-3.0/settings.ini)"
+if [ ! -d ~/.themes/Graphite-Dark-compact-nord ]; then
+  builddir="$(mktemp -d)"
+  git clone --depth 1 https://github.com/vinceliuice/Graphite-gtk-theme.git "$builddir/Graphite-gtk-theme"
+  (cd "$builddir/Graphite-gtk-theme" && ./install.sh -t default -c dark -s compact --tweaks nord -d ~/.themes)
+  rm -rf "$builddir"
+fi
+
 echo "==> CLI extras"
 sudo pacman -S --needed --noconfirm \
   task taskwarrior-tui sassc mtools fuse3 pkgstats keyd \
@@ -73,7 +81,7 @@ echo "==> AUR packages"
 # fingerprint reader drivers, specific to this Yoga's hardware -- drop them
 # if the target machine doesn't have that sensor.
 yay -S --needed --noconfirm \
-  visual-studio-code-bin graphite-gtk-theme open-fprintd python-validity \
+  visual-studio-code-bin open-fprintd python-validity \
   fprintd-clients-git fprintd-clients-git-debug
 {{ end }}
 
@@ -93,7 +101,7 @@ fi
 
 # Add open-fprintd/python-validity/fprintd-clients-git* here too if this
 # machine has the same Synaptics/Validity fingerprint reader as yoga-arch.
-"$aur_helper" -S --needed --noconfirm visual-studio-code-bin graphite-gtk-theme
+"$aur_helper" -S --needed --noconfirm visual-studio-code-bin
 {{ end }}
 
 echo "==> Enabling services"
