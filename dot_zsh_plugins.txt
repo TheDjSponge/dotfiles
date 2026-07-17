@@ -1,7 +1,10 @@
+# bash plugins
+rupa/z
+
+
 # OMZ plugins
 getantidote/use-omz
 ohmyzsh/ohmyzsh path:lib
-
 ohmyzsh/ohmyzsh path:plugins/git
 
 # .zsh_plugins.txt

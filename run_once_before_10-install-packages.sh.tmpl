@@ -1,0 +1,110 @@
+{{- if ne .distro "arch" -}}
+#!/bin/bash
+echo "install-packages: distro '{{ .distro }}' is not arch-based, skipping pacman/AUR install."
+{{- else -}}
+#!/bin/bash
+# Package bootstrap for arch-based machines, branched on desktop_env:
+#   hyprland -> raw Arch install (e.g. yoga-arch): everything needed to go
+#               from `pacstrap base` to the full Hyprland desktop.
+#   kde      -> feature-complete spin (e.g. CachyOS Plasma): the delta on
+#               top of what the spin already ships, since Plasma/KWin
+#               already provides a compositor, file manager, secrets
+#               service, NetworkManager, pipewire stack, etc.
+set -euo pipefail
+
+echo "==> Base build tooling (needed for AUR regardless of desktop_env)"
+sudo pacman -S --needed --noconfirm base-devel git
+
+echo "==> Dev tooling"
+sudo pacman -S --needed --noconfirm \
+  git github-cli go nodejs npm pnpm python-uv docker docker-compose \
+  gcc jq postgresql neovim chezmoi opencode
+
+echo "==> External git-managed configs (antidote, nvim)"
+# These are their own git repos on purpose -- chezmoi doesn't track their
+# contents, it just needs to make sure they exist.
+[ -d ~/.antidote ] || git clone --depth 1 https://github.com/mattmc3/antidote.git ~/.antidote
+if [ ! -d ~/.config/nvim ]; then
+  git clone https://github.com/nvim-lua/kickstart.nvim.git ~/.config/nvim
+  echo "NOTE: this is upstream kickstart.nvim, not a personal fork."
+  echo "      Any uncommitted local init.lua edits on the old machine do NOT"
+  echo "      exist in this clone -- commit + push to your own fork before"
+  echo "      nuking anything, then point this URL at the fork instead."
+fi
+
+echo "==> CLI extras"
+sudo pacman -S --needed --noconfirm \
+  task taskwarrior-tui sassc mtools fuse3 pkgstats keyd \
+  openssh tailscale nmap rsync
+
+echo "==> Fonts"
+sudo pacman -S --needed --noconfirm \
+  noto-fonts noto-fonts-emoji otf-geist-mono-nerd ttf-jetbrains-mono-nerd \
+  ttf-nerd-fonts-symbols ttf-noto-nerd
+
+echo "==> Terminal"
+sudo pacman -S --needed --noconfirm kitty zsh nano
+
+echo "==> GUI apps (DE-agnostic)"
+sudo pacman -S --needed --noconfirm \
+  firefox obsidian discord spotify-launcher gimp inkscape audacity \
+  filezilla xournalpp
+
+{{ if eq .desktop_env "hyprland" }}
+echo "==> Hyprland/Wayland desktop stack (raw Arch profile)"
+sudo pacman -S --needed --noconfirm \
+  acpid alsa-firmware alsa-utils brightnessctl evtest usbutils \
+  power-profiles-daemon efibootmgr grub os-prober man-db sudo \
+  networkmanager pipewire-pulse wireplumber \
+  hyprland hypridle hyprlock hyprpaper hyprpicker hyprpolkitagent \
+  hyprlauncher xdg-desktop-portal-hyprland waybar wofi dunst grim slurp \
+  nwg-look qt5-wayland qt6-wayland gnome-keyring dolphin xdg-user-dirs
+
+echo "==> Bootstrapping AUR helper (yay) if missing"
+if ! command -v yay &>/dev/null; then
+  builddir="$(mktemp -d)"
+  git clone --depth 1 https://aur.archlinux.org/yay.git "$builddir/yay"
+  (cd "$builddir/yay" && makepkg -si --noconfirm)
+  rm -rf "$builddir"
+fi
+
+echo "==> AUR packages"
+# open-fprintd/python-validity/fprintd-clients-git* are Synaptics/Validity
+# fingerprint reader drivers, specific to this Yoga's hardware -- drop them
+# if the target machine doesn't have that sensor.
+yay -S --needed --noconfirm \
+  visual-studio-code-bin graphite-gtk-theme open-fprintd python-validity \
+  fprintd-clients-git fprintd-clients-git-debug
+{{ end }}
+
+{{ if eq .desktop_env "kde" }}
+echo "==> Plasma profile: desktop essentials already provided by the spin,"
+echo "    (KWin, Dolphin, NetworkManager, pipewire, KWallet, Qt-Wayland)"
+echo "    so only the AUR delta is needed here."
+
+if command -v paru &>/dev/null; then
+  aur_helper=paru
+elif command -v yay &>/dev/null; then
+  aur_helper=yay
+else
+  echo "No AUR helper (paru/yay) found -- install one manually first." >&2
+  exit 1
+fi
+
+# Add open-fprintd/python-validity/fprintd-clients-git* here too if this
+# machine has the same Synaptics/Validity fingerprint reader as yoga-arch.
+"$aur_helper" -S --needed --noconfirm visual-studio-code-bin graphite-gtk-theme
+{{ end }}
+
+echo "==> Enabling services"
+# NetworkManager: enabled but not started -- starting it mid-script could
+# disrupt whatever connection got you online to run this in the first
+# place. Takes effect on next reboot.
+sudo systemctl enable NetworkManager.service NetworkManager-dispatcher.service \
+  NetworkManager-wait-online.service
+sudo systemctl enable --now docker.service
+sudo usermod -aG docker "$(whoami)"
+echo "NOTE: docker group membership needs a fresh login (or reboot) to take effect."
+
+echo "install-packages: done."
+{{- end -}}

@@ -21,5 +21,8 @@ export LANG=en_GB.UTF-8
 # Aliases are currently located under ~/.config/zsh/aliases.zsh
 [[ -f ~/.config/zsh/aliases.zsh ]] && source ~/.config/zsh/aliases.zsh
 
+# Private file for any computer-specific thingies
+[[ -f ~/.config/zsh/private.zsh ]] && source ~/.config/zsh/private.zsh
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

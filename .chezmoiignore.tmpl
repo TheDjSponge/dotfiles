@@ -1,15 +1,15 @@
 # Ignore Hyprland unless we are on arch-hypr
-{{ if ne .env "arch-hypr" }}
+{{ if ne .desktop_env "hyprland" }}
 .config/hypr
 {{ end }}
 
 # Ignore KDE configs unless we are on ubuntu-kde
-{{ if ne .env "ubuntu-kde" }}
+{{ if ne .desktop_env "kde" }}
 .config/kde-stuff
 {{ end }}
 
 # Ignore GNOME configs unless we are on ubuntu-gnome
-{{ if ne .env "ubuntu-gnome" }}
+{{ if ne .desktop_env "gnome" }}
 .config/gnome-extensions
 {{ end }}
 

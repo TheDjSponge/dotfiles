@@ -1,6 +1,6 @@
 * {
     /* `otf-font-awesome` is required to be installed for icons */
-    font-family: 'JetBrainsMono Nerd Font Propo', sans-serif;
+    font-family: 'JetBrainsMono Nerd Font Propo', 'Symbols Nerd Font Propo', sans-serif;
     font-size: 13px;
     font-weight: bold;
     border-radius: 10px;
@@ -180,12 +180,6 @@ label:focus {
 
 #pulseaudio {
     background-color: #1D2053;
-    
-}
-
-#pulseaudio.muted {
-    background-color: #90b1b1;
-    color: #2a5c45;
 }
 
 #wireplumber {

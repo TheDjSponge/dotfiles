@@ -10,13 +10,15 @@ ce() {
 ## Hyprland / Ricing config files
 alias ce-hyprland="ce ~/.config/hypr/hyprland.conf"
 alias ce-hyprpaper="ce ~/.config/hypr/hyprpaper.conf"
-
+alias ce-hypridle="ce ~/.config/hypr/hypridle.conf"
+alias ce-hyprlock="ce ~/.config/hypr/hyprlock.conf"
 ## ZSH config files
 alias ref="source ~/.zshrc"
 
 alias ce-zsh="ce ~/.zshrc"
 alias ce-aliases="ce ~/.config/zsh/aliases.zsh"
 alias ce-functions="ce ~/.config/zsh/functions.zsh"
+alias ce-private="${EDITOR:-nano} ~/.config/zsh/private.zsh"
 
 ## Waybar config-files
 alias ce-waybar-conf="ce ~/.config/waybar/config.jsonc"
