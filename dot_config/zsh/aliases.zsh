@@ -19,6 +19,8 @@ alias ce-zsh="ce ~/.zshrc"
 alias ce-aliases="ce ~/.config/zsh/aliases.zsh"
 alias ce-functions="ce ~/.config/zsh/functions.zsh"
 alias ce-private="${EDITOR:-nano} ~/.config/zsh/private.zsh"
+alias ce-paths="${EDITOR:-nano} ~/.config/zsh/paths.zsh"
+
 
 ## Waybar config-files
 alias ce-waybar-conf="ce ~/.config/waybar/config.jsonc"
