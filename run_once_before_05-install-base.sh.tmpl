@@ -6,11 +6,34 @@ set -euo pipefail
 
 {{ if eq .distro "arch" -}}
 echo "==> Base shell packages (pacman)"
-sudo pacman -S --needed --noconfirm zsh git curl nano kitty-terminfo
+sudo pacman -S --needed --noconfirm zsh git curl nano kitty-terminfo gitleaks
 {{- else if or (eq .distro "debian") (eq .distro "ubuntu") -}}
 echo "==> Base shell packages (apt)"
 sudo apt-get update
 sudo apt-get install -y zsh git curl nano kitty-terminfo
+
+# gitleaks (used by czsync): Debian's package is too old for `gitleaks git
+# --staged`, so grab the official release binary into ~/.local/bin instead.
+if ! command -v gitleaks &>/dev/null && [ ! -x ~/.local/bin/gitleaks ]; then
+  echo "==> gitleaks (release binary)"
+  case "$(uname -m)" in
+    x86_64)        gl_arch=x64 ;;
+    aarch64|arm64) gl_arch=arm64 ;;
+    armv7l)        gl_arch=armv7 ;;
+    armv6l)        gl_arch=armv6 ;;
+    *)             gl_arch="" ;;
+  esac
+  gl_ver="$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
+            | grep -m1 '"tag_name"' | cut -d'"' -f4 || true)"
+  if [ -n "$gl_arch" ] && [ -n "$gl_ver" ]; then
+    mkdir -p ~/.local/bin
+    curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/${gl_ver}/gitleaks_${gl_ver#v}_linux_${gl_arch}.tar.gz" \
+      | tar -xz -C ~/.local/bin gitleaks \
+      || echo "WARNING: gitleaks download failed -- czsync will refuse to commit until it's installed." >&2
+  else
+    echo "WARNING: couldn't determine gitleaks release/arch ($(uname -m)) -- install it manually." >&2
+  fi
+fi
 
 # .zshrc exports LANG=en_GB.UTF-8 -- make sure that locale actually exists,
 # otherwise every shell/command spams locale warnings.

@@ -20,16 +20,8 @@ sudo pacman -S --needed --noconfirm \
   git github-cli go nodejs npm pnpm python-uv docker docker-compose \
   gcc jq postgresql neovim chezmoi opencode
 
-echo "==> External git-managed configs (nvim)"
-# Its own git repo on purpose -- chezmoi doesn't track its contents, it just
-# needs to make sure it exists. (antidote is handled by 05-install-base.)
-if [ ! -d ~/.config/nvim ]; then
-  git clone https://github.com/nvim-lua/kickstart.nvim.git ~/.config/nvim
-  echo "NOTE: this is upstream kickstart.nvim, not a personal fork."
-  echo "      Any uncommitted local init.lua edits on the old machine do NOT"
-  echo "      exist in this clone -- commit + push to your own fork before"
-  echo "      nuking anything, then point this URL at the fork instead."
-fi
+# nvim config (kickstart-based) is tracked directly by chezmoi under
+# dot_config/nvim; antidote is cloned by 05-install-base.
 
 echo "==> CLI extras"
 sudo pacman -S --needed --noconfirm \
