@@ -1,6 +1,6 @@
-{{- $distro := promptStringOnce . "distro" "Distro types (arch, ubuntu)" -}}
+{{- $distro := promptStringOnce . "distro" "Distro types (arch, debian, ubuntu) -- Raspberry Pi OS = debian" -}}
 
-{{- $desktop_env := promptStringOnce . "desktop_env" "Desktop env types (hyprland, kde, gnome)"}}
+{{- $desktop_env := promptStringOnce . "desktop_env" "Desktop env types (hyprland, kde, gnome, none)"}}
 {{- $hasGui := promptBoolOnce . "has_gui" "Does this machine have a GUI?" -}}
 
 data:

@@ -28,3 +28,7 @@ alias ce-waybar-style="ce ~/.config/waybar/style.css"
 
 ## Because we like human form
 alias df="df -h"
+
+## Python related things
+alias pyenv="source .venv/bin/activate"
+

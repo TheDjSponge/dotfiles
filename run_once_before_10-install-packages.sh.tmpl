@@ -20,10 +20,9 @@ sudo pacman -S --needed --noconfirm \
   git github-cli go nodejs npm pnpm python-uv docker docker-compose \
   gcc jq postgresql neovim chezmoi opencode
 
-echo "==> External git-managed configs (antidote, nvim)"
-# These are their own git repos on purpose -- chezmoi doesn't track their
-# contents, it just needs to make sure they exist.
-[ -d ~/.antidote ] || git clone --depth 1 https://github.com/mattmc3/antidote.git ~/.antidote
+echo "==> External git-managed configs (nvim)"
+# Its own git repo on purpose -- chezmoi doesn't track its contents, it just
+# needs to make sure it exists. (antidote is handled by 05-install-base.)
 if [ ! -d ~/.config/nvim ]; then
   git clone https://github.com/nvim-lua/kickstart.nvim.git ~/.config/nvim
   echo "NOTE: this is upstream kickstart.nvim, not a personal fork."
@@ -32,6 +31,12 @@ if [ ! -d ~/.config/nvim ]; then
   echo "      nuking anything, then point this URL at the fork instead."
 fi
 
+echo "==> CLI extras"
+sudo pacman -S --needed --noconfirm \
+  task taskwarrior-tui sassc mtools fuse3 pkgstats keyd \
+  openssh tailscale nmap rsync
+
+{{ if .has_gui }}
 echo "==> Graphite GTK theme (Dark/compact/nord variant only -- matches gtk-3.0/settings.ini)"
 if [ ! -d ~/.themes/Graphite-Dark-compact-nord ]; then
   builddir="$(mktemp -d)"
@@ -40,23 +45,19 @@ if [ ! -d ~/.themes/Graphite-Dark-compact-nord ]; then
   rm -rf "$builddir"
 fi
 
-echo "==> CLI extras"
-sudo pacman -S --needed --noconfirm \
-  task taskwarrior-tui sassc mtools fuse3 pkgstats keyd \
-  openssh tailscale nmap rsync
-
 echo "==> Fonts"
 sudo pacman -S --needed --noconfirm \
   noto-fonts noto-fonts-emoji otf-geist-mono-nerd ttf-jetbrains-mono-nerd \
   ttf-nerd-fonts-symbols ttf-noto-nerd
 
-echo "==> Terminal"
-sudo pacman -S --needed --noconfirm kitty zsh nano
+echo "==> Terminal emulator (zsh itself comes from 05-install-base)"
+sudo pacman -S --needed --noconfirm kitty
 
 echo "==> GUI apps (DE-agnostic)"
 sudo pacman -S --needed --noconfirm \
   firefox obsidian discord spotify-launcher gimp inkscape audacity \
   filezilla xournalpp
+{{ end }}
 
 {{ if eq .desktop_env "hyprland" }}
 echo "==> Hyprland/Wayland desktop stack (raw Arch profile)"

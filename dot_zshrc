@@ -7,8 +7,12 @@ fi
 
 autoload -Uz compinit && compinit
 
-source ~/.antidote/antidote.zsh
-antidote load
+if [[ -r ~/.antidote/antidote.zsh ]]; then
+  source ~/.antidote/antidote.zsh
+  antidote load
+else
+  print -P "%F{yellow}antidote not found in ~/.antidote -- plugins/prompt not loaded.%f" >&2
+fi
 
 export EDITOR=/bin/nano
 export LANG=en_GB.UTF-8

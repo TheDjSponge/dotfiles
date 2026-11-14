@@ -1,0 +1,41 @@
+#!/bin/bash
+# Base shell environment for EVERY machine (desktop or headless, any distro):
+# zsh + git, antidote, kitty terminfo, and zsh as the login shell.
+# Runs before 10-install-packages, which handles the full Arch desktop/dev set.
+set -euo pipefail
+
+{{ if eq .distro "arch" -}}
+echo "==> Base shell packages (pacman)"
+sudo pacman -S --needed --noconfirm zsh git curl nano kitty-terminfo
+{{- else if or (eq .distro "debian") (eq .distro "ubuntu") -}}
+echo "==> Base shell packages (apt)"
+sudo apt-get update
+sudo apt-get install -y zsh git curl nano kitty-terminfo
+
+# .zshrc exports LANG=en_GB.UTF-8 -- make sure that locale actually exists,
+# otherwise every shell/command spams locale warnings.
+if ! locale -a 2>/dev/null | grep -qi '^en_GB\.utf-\?8$'; then
+  echo "==> Generating en_GB.UTF-8 locale"
+  sudo sed -i 's/^# *\(en_GB\.UTF-8 UTF-8\)/\1/' /etc/locale.gen
+  sudo locale-gen
+fi
+{{- else -}}
+echo "install-base: unknown distro '{{ .distro }}' -- install zsh, git and curl manually." >&2
+{{- end }}
+
+echo "==> antidote (zsh plugin manager)"
+# Its own git repo on purpose -- chezmoi just makes sure it exists.
+if command -v git &>/dev/null && [ ! -d ~/.antidote ]; then
+  git clone --depth 1 https://github.com/mattmc3/antidote.git ~/.antidote
+fi
+
+echo "==> Default shell"
+if zsh_path="$(command -v zsh)"; then
+  current_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+  if [ "$current_shell" != "$zsh_path" ]; then
+    sudo chsh -s "$zsh_path" "$(id -un)"
+    echo "Login shell changed to $zsh_path (takes effect on next login)."
+  fi
+fi
+
+echo "install-base: done."
